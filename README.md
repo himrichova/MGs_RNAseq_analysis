@@ -1,1 +1,1 @@
-# MGs_RNAseq_analysis
+# Molecular glues: RNA-seq data analysis
