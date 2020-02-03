@@ -109,13 +109,17 @@ wilcox.test(fit$coefficients[,1],fit$coefficients[,6])$p.value # Hit8 p-value = 
 # Differentially expressed genes between Treatment vs DMSO
 ########################################################################
 
+colors_names=as.data.frame(read.table("colors_names.txt",sep="\t", header=TRUE, row.names=1, dec="."))
 
-treatments=c("THZ531","Hit1_2_5uM","Hit2_7uM","Hit8_3_5uM","Hit4_25uM")
+
+#treatments=c("THZ531","Hit1_2_5uM","Hit2_7uM","Hit8_3_5uM","Hit4_25uM")
 
 
-  treatment_name="Hit4_25uM"
-  condition_name="Hit4"
-  color="#F19222"
+
+for (treatment_name in c("Hit4_25uM"))
+{
+  condition_name=as.character(colors_names[treatment_name,3])
+  color=as.character(colors_names[treatment_name,2])
   print(paste(treatment_name,condition_name))
   
   fit <- lmFit(count_df, designAmp)
@@ -133,10 +137,11 @@ treatments=c("THZ531","Hit1_2_5uM","Hit2_7uM","Hit8_3_5uM","Hit4_25uM")
   
   res <- topTable(fit,adjust="BH",number=nrow(count_df), coef = 'deg', sort.by="none")
   
-  pdf(paste("VolcanoPlot_",treatment_name,"_vs_DMSO.Adj_pvalues.col.pdf",sep=""))
+  pdf(paste("VolcanoPlot_",treatment_name,"_vs_DMSO.highlighted.Adj_pvalues.pdf",sep=""),useDingbats=FALSE)
   par(family = "Arial")
   plot(res$logFC,-log10(res$adj.P.Val),pch=16,main=paste("", condition_name, "vs DMSO"),cex=0.35,
-       xlab="Log2 Fold Change", ylab="-log10(adj. P-value)",ylim=c(0,11),xlim=c(-8,6),family="Arial",col="#B4B4B4")
+       xlab="Log2 Fold Change", ylab="-log10(adj. P-value)",ylim=c(0,11),xlim=c(-8,6)
+       ,family="Arial",col="#B4B4B4")
   
   points(res[which(abs(res$logFC)>=2 & res$adj.P.Val<=0.05),]$logFC,-log10(res[which(abs(res$logFC)>=2 & res$adj.P.Val<=0.05),]$adj.P.Val)
          ,pch=16,cex=0.35,ylim=c(0,11),xlim=c(-8,6),col=color)
@@ -144,7 +149,8 @@ treatments=c("THZ531","Hit1_2_5uM","Hit2_7uM","Hit8_3_5uM","Hit4_25uM")
   
   
   write.table(res, file=paste("Comparison_",treatment_name,"_vs_DMSO.HGNC.txt",sep=""),quote=FALSE,sep="\t",row.names=T,col.names=T)
-
+  
+}
 
 
 
@@ -190,16 +196,19 @@ vioplot(LFC_rnk_merged[,2:6]
 )
 abline(h=0, col="black",lty="dashed")
 
-# add wilcox.test p-values - lmFit coefficients of treatment vs lmFit coefficients of DMSO (mean of 3 treatment replicates vs mean of 3 DMSO replicates)
-text(x = c(1, 2,3,4,5), y = c(6,6), labels = c("0","0","0","5.90e-185", "5.95e-18"),cex=0.8)
+
+# Add statistical significance determined by two-sided unpaired t-test applied on levels of gene expression in compound-treated cells (3 replicates) vs DMSO-treated cells (3 replicates)
+G<-reads_hg38_ERCC_loess[gene_rows,]
+
+t.test(apply(G[,1:3],1,mean),apply(G[,4:6],1,mean) )$p.value #THZ 1.712608e-293
+t.test(apply(G[,1:3],1,mean),apply(G[,7:9],1,mean) )$p.value #Hit4 0.2439421
+t.test(apply(G[,1:3],1,mean),apply(G[,10:12],1,mean) )$p.value #Hit1 6.922707e-238
+t.test(apply(G[,1:3],1,mean),apply(G[,13:15],1,mean) )$p.value #Hit2 3.323458e-304
+t.test(apply(G[,1:3],1,mean),apply(G[,16:18],1,mean) )$p.value #Hit8 2.400329e-32
+
+text(x = c(1, 2,3,4,5), y = c(6,6), labels = c("p<0.0001","p<0.0001","p<0.0001","p<0.0001","p=0.24"),cex=0.8)
 
 dev.off()
-
-
-
-
-
-
 
 
 
