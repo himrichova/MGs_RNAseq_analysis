@@ -92,16 +92,6 @@ fit <- lmFit(count_df, designAmp)
 fit<-eBayes(fit)
 
 
-# Mann-Whitney (Wilcox Rank Sum) test to test statistical difference between coefficients of DMSO vs treatment
-# the coefficients correspond to means across 3 replicates per gene
-wilcox.test(fit$coefficients[,1],fit$coefficients[,2])$p.value # THZ531 p-value = 0
-wilcox.test(fit$coefficients[,1],fit$coefficients[,3])$p.value # Hit4 p-value = 5.951952e-18
-wilcox.test(fit$coefficients[,1],fit$coefficients[,4])$p.value # Hit1 p-value = 0
-wilcox.test(fit$coefficients[,1],fit$coefficients[,5])$p.value # Hit2 p-value = 0
-wilcox.test(fit$coefficients[,1],fit$coefficients[,6])$p.value # Hit8 p-value = 5.903835e-185
-
-
-
 
 
 
